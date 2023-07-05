@@ -60,7 +60,7 @@ jobs:
     - name: Build vault image
       uses: docker/build-push-action@v2
       with:
-        context: vault
+        context: .
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile
         target: deploy
