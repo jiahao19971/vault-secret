@@ -12,67 +12,34 @@ concurrency:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  DOCKER_REGISTRY: ghcr.io
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }} 
 
 jobs:
   build_vault_secret:
     runs-on: ubuntu-latest
-    env:      
-      DOCKER_IMAGE: jiahao19971/vault-secret
-      
-    steps:    
-    - name: Checkout the code       
-      uses: actions/checkout@v2   
-    
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Prepare           
-      id: prepare      
-      run: |   
-        TAG=$(echo $GITHUB_SHA | head -c7)     
-        echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}        
-        echo ::set-output name=docker_image::${DOCKER_REGISTRY}/${DOCKER_IMAGE}        
-        echo ::set-output name=version::${GITHUB_RUN_NUMBER}  
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set up Docker Buildx
-      id: buildx
-      uses: docker/setup-buildx-action@master
-      with:
-        install: true
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-    - name: Docker Login      
-      if: success()      
-      run: |        
-        echo "${DOCKER_PASSWORD}" | docker login ${DOCKER_REGISTRY} --username "${DOCKER_USERNAME}" --password-stdin  
-    
-    - name: Cache Docker layers
-      uses: actions/cache@v2
-      with:
-        path: /tmp/.buildx-cache
-        # Key is named differently to avoid collision
-        key: ${{ runner.os }}-vault-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-vault
-
-    - name: Build vault image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        builder: ${{ steps.buildx.outputs.name }}
-        file: Dockerfile
-        push: true # This would be set to true in a real world deployment scenario.
-        tags: ${{ steps.prepare.outputs.docker_image }}:latest
-        platforms: ${{ steps.prepare.outputs.docker_platform }}
-        cache-from: type=local,src=/tmp/.buildx-cache
-          # Note the mode=max here
-          # More: https://github.com/moby/buildkit#--export-cache-options
-          # And: https://github.com/docker/buildx#--cache-tonametypetypekeyvalue
-        cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-    
-    - name: Move cache
-      run: |
-        rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
