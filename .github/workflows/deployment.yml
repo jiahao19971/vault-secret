@@ -63,7 +63,6 @@ jobs:
         context: .
         builder: ${{ steps.buildx.outputs.name }}
         file: Dockerfile
-        target: deploy
         push: true # This would be set to true in a real world deployment scenario.
         tags: ${{ steps.prepare.outputs.docker_image }}:latest
         platforms: ${{ steps.prepare.outputs.docker_platform }}
