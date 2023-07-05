@@ -20,7 +20,7 @@ jobs:
   build_vault_secret:
     runs-on: ubuntu-latest
     env:      
-      DOCKER_IMAGE: jiahao19971/vault-secrets
+      DOCKER_IMAGE: jiahao19971/vault-secret
       
     steps:    
     - name: Checkout the code       
