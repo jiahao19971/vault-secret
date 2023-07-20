@@ -5,7 +5,7 @@ from base64 import b64encode
 
 dotenv.load_dotenv()
 
-def _open_config(config_name):
+def _open_config(config_name: str):
     with open(config_name, "r", encoding="utf-8") as stream:
       try:
         data = yaml.safe_load(stream)
@@ -31,7 +31,7 @@ def _open_config(config_name):
           message = "Something went wrong while parsing config.yaml file"
           raise ValueError(message) from yamlerr
 
-def b64encodestr(string):
+def b64encodestr(string: str):
   return b64encode(string.encode("utf-8")).decode()
 
 if __name__ == "__main__":
