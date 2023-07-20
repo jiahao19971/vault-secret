@@ -31,6 +31,9 @@ def _open_config(config_name: str):
           message = "Something went wrong while parsing config.yaml file"
           raise ValueError(message) from yamlerr
 
+def b64encodestr(string: str):
+  return b64encode(string.encode("utf-8")).decode()
+
 if __name__ == "__main__":
   try:
     config = _open_config("config.yaml")
@@ -38,8 +41,9 @@ if __name__ == "__main__":
       get_output = subprocess.check_output(["vlt","secrets", "get" ,"--plaintext", conf['key']]) 
       decoded = get_output.strip().decode()
       print(f"Patching secret {conf['key']}") 
-      cmd = f"""kubectl patch secret {config['name']} -p='{{"data":{{"{conf['value']}": "{decoded}"}}}}' -n {config['namespace']} -v=1"""
+      b64val = b64encodestr(decoded)
+      cmd = f"""kubectl patch secret {config['name']} -p='{{"data":{{"{conf['value']}": "{b64val}"}}}}' -n {config['namespace']} -v=1"""
       patch_output = subprocess.check_output(cmd, shell=True)
-      print(patch_output)
+      print(patch_output.decode())
   except Exception as e:
       print(e)
