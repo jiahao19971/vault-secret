@@ -40,7 +40,7 @@ if __name__ == "__main__":
     for conf in config['secrets']:
       get_output = subprocess.check_output(["vlt","secrets", "get" ,"--plaintext", conf['key']]) 
       decoded = get_output.strip().decode()
-      print(f"Patching secret {conf['key']}") 
+      print(f"Patching secret {conf['key']} to {conf['value']}") 
       b64val = b64encodestr(decoded)
       cmd = f"""kubectl patch secret {config['name']} -p='{{"data":{{"{conf['value']}": "{b64val}"}}}}' -n {config['namespace']} -v=1"""
       patch_output = subprocess.check_output(cmd, shell=True)
