@@ -1,6 +1,7 @@
 import dotenv, json, subprocess
 import yaml
 from cerberus import Validator
+from base64 import b64encode
 
 dotenv.load_dotenv()
 
@@ -30,6 +31,9 @@ def _open_config(config_name):
           message = "Something went wrong while parsing config.yaml file"
           raise ValueError(message) from yamlerr
 
+def b64encodestr(string):
+  return b64encode(string.encode("utf-8")).decode()
+
 if __name__ == "__main__":
   try:
     config = _open_config("config.yaml")
@@ -37,8 +41,9 @@ if __name__ == "__main__":
       get_output = subprocess.check_output(["vlt","secrets", "get" ,"--plaintext", conf['key']]) 
       decoded = get_output.strip().decode()
       print(f"Patching secret {conf['key']}") 
-      data = {"data": {conf['key']: decoded}}
-      patch_output = subprocess.check_output(["kubectl", "patch", "secret", config['name'], f'-p={data}', "-n", config['namespace'], "-v=1"])
+      b64val = b64encodestr(decoded)
+      cmd = f"""kubectl patch secret {config['name']} -p='{{"data":{{"{conf['value']}": "{b64val}"}}}}' -n {config['namespace']} -v=1"""
+      patch_output = subprocess.check_output(cmd, shell=True)
       print(patch_output)
   except Exception as e:
       print(e)
