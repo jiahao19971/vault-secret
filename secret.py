@@ -38,7 +38,7 @@ if __name__ == "__main__":
       decoded = get_output.strip().decode()
       print(f"Patching secret {conf['key']}") 
       data = json.dumps({"data": {conf['key']: decoded}})
-      patch_output = subprocess.check_output(["kubectl", "patch", "secret", config['name'], f"-p={data}", "-n", config['namespace'], "-v=1"])
+      patch_output = subprocess.check_output(["kubectl", "patch", "secret", config['name'], f'-p="{data}"', "-n", config['namespace'], "-v=1"])
       print(patch_output)
   except Exception as e:
       print(e)
