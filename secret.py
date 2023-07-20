@@ -44,6 +44,6 @@ if __name__ == "__main__":
       b64val = b64encodestr(decoded)
       cmd = f"""kubectl patch secret {config['name']} -p='{{"data":{{"{conf['value']}": "{b64val}"}}}}' -n {config['namespace']} -v=1"""
       patch_output = subprocess.check_output(cmd, shell=True)
-      print(patch_output.decode())
+      print(patch_output.strip().decode())
   except Exception as e:
       print(e)
