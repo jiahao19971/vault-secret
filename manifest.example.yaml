@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: example-migration
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  ttlSecondsAfterFinished: 100
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccount: example
+      serviceAccountName: example
+      containers:
+        - name: vault-migration
+          imagePullPolicy: Always
+          image: vault-secret:latest
+          envFrom:
+            - secretRef:
+                name: vault-secret
+          command: ["python3", "./secret.py"]
+          volumeMounts:
+            - name: vault-config
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+              readOnly: true
+      restartPolicy: Never
+      volumes:
+        - name: vault-config
+          configMap:
+            name: vault-config

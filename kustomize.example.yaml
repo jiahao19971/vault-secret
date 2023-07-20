@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - manifest.example.yaml
+
+secretGenerator:
+  - name: vault-secret
+    literals:
+      - HCP_CLIENT_ID=<>
+      - HCP_CLIENT_SECRET=<>
+      - VLT_ORGANIZATION_ID=<>
+      - VLT_PROJECT_ID=<>
+      - VLT_APPLICATION_NAME=<>
+    behavior: create
+    options:
+      disableNameSuffixHash: true
+
+images:
+- name: vault-secret
+  newName: ghcr.io/jiahao19971/vault-secret
+  newTag: master
+
+configMapGenerator:
+  - name: vault-config
+    behavior: create
+    files:
+      - config.example.yaml

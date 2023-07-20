@@ -1,0 +1,5 @@
+name: example-secret
+namespace: default
+secrets:
+  - key: EXAMPLE_SECRET
+    value: OTHER_EXAMPLE_SECRET 
