@@ -1,0 +1,27 @@
+{
+    "name": {
+        "required": true,
+        "type": "string"
+    },
+    "namespace": {
+        "required": true,
+        "type": "string"
+    },
+    "secrets": {
+        "required": true,
+        "type": "list",
+        "schema": {
+            "type": "dict",
+            "schema": {
+                "key": {
+                    "required": true,
+                    "type": "string"
+                },
+                "value": {
+                    "required": true,
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
