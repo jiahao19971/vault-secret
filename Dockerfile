@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apt update
 RUN apt install python3 python3-pip -y
 RUN apt update && apt install -y --no-install-recommends gpg curl lsb-release ca-certificates openssl
-RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/arm64/kubectl && \
+RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(lsb_release -cs)/kubectl" && \
       chmod +x ./kubectl && \
       mv ./kubectl /usr/local/bin/kubectl
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
